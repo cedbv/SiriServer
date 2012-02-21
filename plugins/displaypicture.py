@@ -21,11 +21,11 @@ from plugin import __criteria_key__
 from siriObjects.uiObjects import AddViews
 from siriObjects.answerObjects import AnswerSnippet, AnswerObject, AnswerObjectLine
 
-class define(Plugin):
+class DisplayPicture(Plugin):
     
     @register("de-DE", "(zeig mir|zeige|zeig).*(bild|zeichnung) (vo. ein..|vo.|aus)* ([\w ]+)")
     @register("en-US", "(display|show me|show).*(picture|image|drawing|illustration) (of|an|a)* ([\w ]+)")
-    @register("fr-FR", u"(montre|affiche moi|affiche|recherche|cherche|dessine)?.*(photos?|images?|dessins?|illustrations?|moi) (une?|pour|de la|de l'|des|du|de|d'une?|d'|l')* ?([\w ]+)")
+    @register("fr-FR", u"(montre|affiche|recherche|cherche|dessine)?.*(photos?|images?|dessins?|illustrations?|affiche.moi|dessine.moi) (une?|pour|de la|de l'|des|du|de|d'une?|d'|l')* ?([\w ]+)")
     def displaypicture(self, speech, language, regex):
         Title = regex.group(regex.lastindex).strip()
         Query = urllib.quote_plus(Title.encode("utf-8"))

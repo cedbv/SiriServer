@@ -12,7 +12,7 @@ from plugin import *
 
 class vieDeMerde(Plugin):
     
-    @register("fr-FR", ".*vie.*(merde|merd).*")
+    @register("fr-FR", ".*vie.*(merde|merd).*|.*vdm.*")
     def fuckMyLife(self, speech, language):
         vdm = None
         lang = language[:2]
@@ -31,6 +31,6 @@ class vieDeMerde(Plugin):
             self.send_object(AddViews(self.refId, views=[button]))
         else:
             if language == "fr-FR":
-                self.say(u"Désolé, aujourd'hui est une journée tellement merdique que je n'arrive pas pas à lire VDM.")
+                self.say(u"Désolé, aujourd'hui est une journée tellement merdique que je n'arrive même pas à lire VDM.")
             
         self.complete_request()

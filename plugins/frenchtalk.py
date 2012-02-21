@@ -122,12 +122,6 @@ class frenchtalk(Plugin):
         else:
             self.say("Demandez gentiment, maintenant.")
         self.complete_request()
-
-    @register("fr-FR", u".*(suis|suit).*(saoul|soul|soûl|sous)|(je|j'ai).*alcool.*|j.ai.*(trop.*)?bu.*")
-    def ft_glouglou(self, speech, language):
-        rep = [u"Ne buvez jamais si vous avez du travail à faire, ne buvez jamais seul et ne buvez jamais lorsque le soleil brille.", u"Ne comptez pas sur moi pour vous ramener chez vous.", u"Boire ou conduire, il faut choisir !"]
-        self.say(random.choice(rep))
-        self.complete_request()
 		
     @register("fr-FR", u"j.*envie.*")
     def ft_envies(self, speech, language):
@@ -351,6 +345,12 @@ class frenchtalk(Plugin):
         self.say(random.choice(rep))
         self.complete_request()
 
+    @register("fr-FR", u".*(sui(s|t)).*(sa?o(u|û)le?|sous)|(je|j'ai).*alcool.*|j.ai.*(trop.*)?bu.*")
+    def ft_jesuissaoul(self, speech, language):
+        rep = [u"Ne buvez jamais si vous avez du travail à faire, ne buvez jamais seul et ne buvez jamais lorsque le soleil brille.", u"Ne comptez pas sur moi pour vous ramener chez vous.", u"Boire ou conduire, il faut choisir !"]
+        self.say(random.choice(rep))
+        self.complete_request()
+
     # Duplicate of smalltalk
     @register("fr-FR", u".*Je.*suis.*(fatigue|fatigué).*|.*fatigu(é|e).*")
     def ft_jesuisfatigue(self, speech, language):
@@ -359,7 +359,7 @@ class frenchtalk(Plugin):
         self.complete_request()
 
     @register("fr-FR", u"je.*suis.*")
-    def ft_jesuis(self, speech, language):
+    def ft_jesuiszorro(self, speech, language):
         rep = [u"Tu es ce que tu es, pas la peine de m'en vouloir pour ça.", u"Ce que tu es ne dépends que de toi, pas de moi.", u"Et alors ? Tu es ce que tu es, un point c'est tout.", u"Tu l'es, et tu le resteras probablement encore longtemps.", u"A ce rythme-là, tu le seras encore dans très longtemps..."]
         self.say(random.choice(rep))
         self.complete_request()
