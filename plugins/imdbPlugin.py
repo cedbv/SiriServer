@@ -137,9 +137,11 @@ class imdbPlugin(Plugin):
                 hereactor = self.res["here_actor"][language];
                 self.say(hereactor.format(infos["title"]))
                 actors = ""
+                actors_say = ""
                 for people in infos["cast"]:
-                    actors += people["name"] + ", \n"
-                self.say(actors)
+                    actors += people["name"] + "\n"
+                    actors_say += people["name"] + ", \n"
+                self.say(actors, actors_say)
             except:
                 noactor = self.res["no_actor"][language];
                 self.say(noactor.format(infos["title"]))
@@ -244,10 +246,12 @@ class imdbPlugin(Plugin):
                 here = self.res["here_played_in"][language];
                 self.say(here.format(infos["name"]))
                 films = ""
+                films_say = ""
                 act = infos.get('actor') or infos.get('actress')
                 for film in act:
-                    films += film["title"] + ", \n"
-                self.say(films)
+                    films += film["title"] + "\n"
+                    films_say += film["title"] + ", \n"
+                self.say(films, films_say)
             except:
                 no = self.res["no_played_in"][language];
                 self.say(no.format(infos["name"]))
