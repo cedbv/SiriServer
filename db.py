@@ -32,7 +32,9 @@ def setup():
         try:
             c.execute("create table assistants (assistantId VARCHAR(255) PRIMARY KEY, assistant TEXT)")
         except MySQLdb.Error, e:
-            print e
+            if e[0] != 1050:
+                print e
+                exit()
     else:
         c.execute("create table if not exists assistants(assistantId text primary key, assistant assi)")
     conn.commit()
