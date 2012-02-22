@@ -5,22 +5,45 @@ import cPickle
 import sqlite3
 from uuid import uuid4
 
-
+# SQLite
+db_type = "sqlite"
 __database__ = "database.sqlite3"
 
+# MySQL
+"""
+db_type = "mysql"
+__host__ = "localhost"
+__username__ = "root"
+__password__ = ""
+__database__ = "siriserver"
+"""
+
+if db_type == "mysql":
+    try:
+        import MySQLdb
+    except:
+        print "You must install MySQLdb to use MySQL with SiriServer."
+        exit()
+        
 def setup():
     conn = getConnection()
     c = conn.cursor()
-    c.execute("""
-        create table if not exists assistants(assistantId text primary key, assistant assi)
-        """)
+    if db_type == "mysql":
+        try:
+            c.execute("create table assistants (assistantId VARCHAR(255) PRIMARY KEY, assistant TEXT)")
+        except MySQLdb.Error, e:
+            print e
+    else:
+        c.execute("create table if not exists assistants(assistantId text primary key, assistant assi)")
     conn.commit()
     c.close()
     conn.close()
 
 def getConnection():
-    return sqlite3.connect(__database__, detect_types=sqlite3.PARSE_DECLTYPES)
-
+    if db_type == "mysql":
+        return MySQLdb.connect(__host__, __username__, __password__, __database__, use_unicode=True)
+    else:
+        return sqlite3.connect(__database__, detect_types=sqlite3.PARSE_DECLTYPES)
 
 class Assistant(object):
     def __init__(self, assistantId=str.upper(str(uuid4()))):
@@ -37,5 +60,6 @@ def adaptAssistant(assistant):
 def convertAssistant(fromDB):
     return cPickle.loads(fromDB)
 
-sqlite3.register_adapter(Assistant, adaptAssistant)
-sqlite3.register_converter("assi", convertAssistant)
+if db_type == "sqlite":
+    sqlite3.register_adapter(Assistant, adaptAssistant)
+    sqlite3.register_converter("assi", convertAssistant)

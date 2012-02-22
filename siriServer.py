@@ -317,9 +317,15 @@ class HandleConnection(ssl_dispatcher):
                     c = self.dbConnection.cursor()
                     noError = True
                     try:
-                        c.execute("insert into assistants(assistantId, assistant) values (?,?)", (helper.assistantId, helper))
+                        if db.db_type == "mysql":
+                            assistant_str = db.adaptAssistant(helper)
+                            c.execute("insert into assistants(assistantId, assistant) values (%s,%s)", (helper.assistantId, assistant_str))
+                        else:
+                            c.execute("insert into assistants(assistantId, assistant) values (?,?)", (helper.assistantId, helper))
                         self.dbConnection.commit()
                     except sqlite3.Error, e: 
+                        noError = False
+                    except MySQLdb.Error, e: 
                         noError = False
                     c.close()
                     if noError:
@@ -337,26 +343,40 @@ class HandleConnection(ssl_dispatcher):
                         self.assistant.timeZoneId = objProperties['timeZoneId']
                         self.assistant.language = objProperties['language']
                         self.assistant.region = objProperties['region']
-                        c.execute("update assistants set assistant = ? where assistantId = ?", (self.assistant, self.assistant.assistantId))
+                        if db.db_type == "mysql":
+                            assistant_str = db.adaptAssistant(self.assistant)
+                            c.execute("update assistants set assistant = %s where assistantId = %s", (assistant_str, self.assistant.assistantId))
+                        else:
+                            c.execute("update assistants set assistant = ? where assistantId = ?", (self.assistant, self.assistant.assistantId))
+            
                         self.dbConnection.commit()
                         c.close()
 
             
                 elif reqObject['class'] == 'LoadAssistant':
                     c = self.dbConnection.cursor()
-                    c.execute("select assistant from assistants where assistantId = ?", (reqObject['properties']['assistantId'],))
+                    if db.db_type == "mysql":
+                        c.execute("select assistant from assistants where assistantId = %s", (reqObject['properties']['assistantId'],))
+                    else:
+                        c.execute("select assistant from assistants where assistantId = ?", (reqObject['properties']['assistantId'],))
                     self.dbConnection.commit()
                     result = c.fetchone()
                     if result == None:
                         self.send_plist({"class": "AssistantNotFound", "aceId":str(uuid.uuid4()), "refId":reqObject['aceId'], "group":"com.apple.ace.system"})
                     else:
-                        self.assistant = result[0]
+                        if db.db_type == "mysql":
+                            self.assistant = db.convertAssistant(result[0].encode("utf-8"))
+                        else:
+                            self.assistant = result[0]
                         self.send_plist({"class": "AssistantLoaded", "properties": {"version": "20111216-32234-branches/telluride?cnxn=293552c2-8e11-4920-9131-5f5651ce244e", "requestSync":False, "dataAnchor":"removed"}, "aceId":str(uuid.uuid4()), "refId":reqObject['aceId'], "group":"com.apple.ace.system"})
                     c.close()
 
                 elif reqObject['class'] == 'DestroyAssistant':
                     c = self.dbConnection.cursor()
-                    c.execute("delete from assistants where assistantId = ?", (reqObject['properties']['assistantId'],))
+                    if db.db_type == "mysql":
+                        c.execute("delete from assistants where assistantId = %s", (reqObject['properties']['assistantId'],))
+                    else:
+                        c.execute("delete from assistants where assistantId = ?", (reqObject['properties']['assistantId'],))
                     self.dbConnection.commit()
                     c.close()
                     self.send_plist({"class": "AssistantDestroyed", "properties": {"assistantId": reqObject['properties']['assistantId']}, "aceId":str(uuid.uuid4()), "refId":reqObject['aceId'], "group":"com.apple.ace.system"})
