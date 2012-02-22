@@ -323,9 +323,7 @@ class HandleConnection(ssl_dispatcher):
                         else:
                             c.execute("insert into assistants(assistantId, assistant) values (?,?)", (helper.assistantId, helper))
                         self.dbConnection.commit()
-                    except sqlite3.Error, e: 
-                        noError = False
-                    except MySQLdb.Error, e: 
+                    except: 
                         noError = False
                     c.close()
                     if noError:
@@ -338,7 +336,7 @@ class HandleConnection(ssl_dispatcher):
                     # fill assistant 
                     if self.assistant != None:
                         c = self.dbConnection.cursor()
-                        objProperties = reqObject['properties'] 
+                        objProperties = reqObject['properties']
                         self.assistant.censorSpeech = objProperties['censorSpeech']
                         self.assistant.timeZoneId = objProperties['timeZoneId']
                         self.assistant.language = objProperties['language']
@@ -383,7 +381,7 @@ class HandleConnection(ssl_dispatcher):
                 elif reqObject['class'] == 'StartRequest':
                     #this should also be handeled by special plugins, so lets call the plugin handling stuff
                     self.process_recognized_speech({'hypotheses': [{'utterance': reqObject['properties']['utterance'], 'confidence': 1.0}]}, reqObject['aceId'], False)
-
+                
                     
     def hasNextObj(self):
         if len(self.unzipped_input) == 0:
