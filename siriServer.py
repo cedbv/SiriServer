@@ -341,6 +341,7 @@ class HandleConnection(ssl_dispatcher):
                         self.assistant.timeZoneId = objProperties['timeZoneId']
                         self.assistant.language = objProperties['language']
                         self.assistant.region = objProperties['region']
+                        self.assistant.firstName = objProperties['meCards'][0]['properties']['firstName'].encode("utf-8")
                         if db.db_type == "mysql":
                             assistant_str = db.adaptAssistant(self.assistant)
                             c.execute("update assistants set assistant = %s where assistantId = %s", (assistant_str, self.assistant.assistantId))

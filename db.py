@@ -10,13 +10,13 @@ db_type = "sqlite"
 __database__ = "database.sqlite3"
 
 # MySQL
-"""
+#"""
 db_type = "mysql"
 __host__ = "localhost"
 __username__ = "root"
 __password__ = ""
 __database__ = "siriserver"
-"""
+#"""
 
 if db_type == "mysql":
     try:
@@ -54,7 +54,7 @@ class Assistant(object):
         self.timeZoneId = None
         self.language = None
         self.region = None
-
+        self.firstName = u""
 
 def adaptAssistant(assistant):
     return cPickle.dumps(assistant)

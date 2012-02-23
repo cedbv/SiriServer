@@ -12,11 +12,11 @@ class smalltalk(Plugin):
     @register("fr-FR", ".*(Bonjour|Coucou|Salut)( Siri)?.*")
     def st_hello(self, speech, language):
         if language == 'de-DE':
-            self.say("Hallo.")
+            self.say("Hallo {0}.".format(self.assistant.firstName.decode("utf-8")))
         elif language == 'fr-FR':
-			self.say("Bonjour.");
+            self.say(u"Bonjour {0}".format(self.assistant.firstName.decode("utf-8")))
         else:
-            self.say("Hello")
+            self.say("Hello {0}".format(self.assistant.firstName.decode("utf-8")))
         self.complete_request()
 
     @register("de-DE", ".*Dein Name.*")
