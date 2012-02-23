@@ -25,5 +25,5 @@ class examplePlugin(Plugin):
     @register("fr-FR", ".*test.*localisation.*")
     def locationTest(self, speech, language):
         location = self.getCurrentLocation(force_reload=True)
-        self.say(u"lat: {0}, long: {1}".format(location.latitude, location.longitude))
+        self.say(u"latitude : {0}, longitude : {1}".format(location.latitude, location.longitude))
         self.complete_request()

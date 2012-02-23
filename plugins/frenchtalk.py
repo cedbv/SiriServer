@@ -19,6 +19,13 @@ class frenchtalk(Plugin):
         self.say(u"Je ne peux pas encore te montrer de vidéos, désolé.");
         self.complete_request()
 
+    @register("fr-FR", ".*Qui.*sui(t|s).*je|.*quel.*es.*mon.*nom.*")
+    def ft_quisuisje(self, speech, language):
+        rep = [u"Tu es {0}, mais tu le savais déjà.".format(self.assistant.firstName.decode("utf-8"))]
+        self.say(random.choice(rep))
+        self.complete_request()
+		
+
     @register("fr-FR", "(.*Qui.*es.*tu.*)|(Comment.*appelle.*)")
     def ft_quiestu(self, speech, language):
         rep = [u"Je suis Siri.",u"Je m'appelle Siri.", u"Mon nom est Siri, je suis votre assistant virtuel."]
@@ -314,7 +321,7 @@ class frenchtalk(Plugin):
         self.complete_request()
 
     @register("fr-FR", u".*je.*suis.*malade.*")
-    def ft_malade(self, speech, language):
+    def ft_jesuismalade(self, speech, language):
         choix = random.randint(0,2)
         if choix == 1:
             answer = self.ask(u"Quels sont les symptômes ?")

@@ -16,12 +16,17 @@ class tvBelgium(Plugin):
         
     @register("fr-FR", u".*(tv|t(é|e)l(é|e)vision|t(é|e)l(é|e) | t(é|e)l(é|e)).*")
     def moustique(self, speech, language, regex):
-        response = urllib2.urlopen("http://api.moustique.be/pota/epg/getbroadcasterlist/data.xml", timeout=5).read()
-        xml = ET.fromstring(response)
-        chaines = {}
-        for broadcast in xml:
-            chaines[broadcast.get("id")] = broadcast.find("display_name").text
-
+        try:
+            response = urllib2.urlopen("http://api.moustique.be/pota/epg/getbroadcasterlist/data.xml", timeout=30).read()
+            xml = ET.fromstring(response)
+            chaines = {}
+            for broadcast in xml:
+                chaines[broadcast.get("id")] = broadcast.find("display_name").text
+        except:
+            self.say(U"Une erreur est survenue pendant la récupération des chaînes.")
+            self.complete_request()
+            return
+            
         today = datetime.today()
 
         # Soiréee
@@ -38,9 +43,14 @@ class tvBelgium(Plugin):
             today = today-timedelta(days=1)
             
         today_string = today.strftime(u"%Y-%m-%d")
-
-        response = urllib2.urlopen("http://api.moustique.be/pota/epg/getprograms/{0}/data.xml".format(today_string), timeout=5).read()
-        xml = ET.fromstring(response)
+        
+        try:
+            response = urllib2.urlopen("http://api.moustique.be/pota/epg/getprograms/{0}/data.xml".format(today_string), timeout=30).read()
+            xml = ET.fromstring(response)
+        except:
+            self.say(u"Désolé, les piles de la télécommande sont plates. Veuillez réessayer plus tard.")
+            self.complete_request()
+            return
 
         currenttime = time.time()
         for broadcaster in xml:

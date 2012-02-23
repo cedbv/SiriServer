@@ -29,7 +29,7 @@ class talkToMe(Plugin):
     @register("de-DE", "(Welcher Tag.*)|(Welches Datum.*)")
     @register("en-US", "(What Day.*)|(What.*Date.*)")
     @register("en-GB", "(What Day.*)|(What.*Date.*)")
-    @register("fr-FR", u"(Quel jour.*)|(Quel.*date.*)")
+    @register("fr-FR", u"(Quel.*jour.*)|(Quel.*date.*)")
     def ttm_say_date(self, speech, language):
         now = date.today()
         if language == 'de-DE':
@@ -39,7 +39,7 @@ class talkToMe(Plugin):
         elif language == 'fr-FR':
             # I have only belgian locale with utf-8... so let Python find the most appropriate for us
             locale.setlocale(locale.LC_ALL, '')
-            result=now.strftime(u"Aujourd'hui, nous sommes le %A, %d %m %Y.")
+            result=now.strftime(u"Aujourd'hui, nous sommes le %A, %d/%m/%Y.")
             self.say(result)
         else:
             locale.setlocale(locale.LC_ALL, 'en_US')

@@ -18,9 +18,9 @@ class Railtime(Plugin):
         lang = language[:2]
         
         try:
-            gareOuPasGare = re.match(u".*(au départ de|au départ|a|à|de|dans|pour) (.*)", speech, re.IGNORECASE)
-            gare = gareOuPasGare.group(gareOuPasGare.lastindex).strip()
-            gare = urllib.quote_plus(gare.encode("utf-8"))
+            gareOuPasGare = re.match(u".*(au départ de|au départ|a|à|de|d'|dans|pour) (.*)", speech, re.IGNORECASE)
+            gare_str = gareOuPasGare.group(gareOuPasGare.lastindex).strip()
+            gare = urllib.quote_plus(gare_str.encode("utf-8"))
         except:
             pass
 
@@ -63,7 +63,7 @@ class Railtime(Plugin):
         if "departures" in response:
             number = response["departures"]["number"]
             self.say(u"J'ai trouvé {0} trains au départ de {1} :".format(number,response["station"]))
-            print response
+            #print response
             for departure in response["departures"]["departure"]:
                    
                 if departure["platform"] == u'':                   
@@ -85,7 +85,7 @@ class Railtime(Plugin):
                    
                 self.say(string)
         else:
-            self.say(u"Je ne parviens pas à récupérer le panneau d'affichage de {0} !".format(gare))
+            self.say(u"Je ne parviens pas à récupérer le panneau d'affichage de {0} !".format(gare_str))
 
         self.complete_request()
 
