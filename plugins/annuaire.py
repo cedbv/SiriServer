@@ -12,15 +12,26 @@ from plugin import *
 
 class Annuaire(Plugin):
         
-    @register("fr-FR", u".*(annuaire) ?(.*)")
+    @register("fr-FR", u".*recherche (.*) dans l'annuaire.*|.*(annuaire) ?(.*)")
     def white(self, speech, language, regex):
+        
         search = regex.group(regex.lastindex).strip()
+        
+        city = re.match(u"(.*) (a|à|de|pour|dans|en|in) (.*)", search, re.IGNORECASE)
+        if city != None:
+            search = city.group(1).strip()
+            city = city.group(city.lastindex).strip()
+        else:
+            city = "belgium"
+        
         try:
             location = self.getCurrentLocation(force_reload=True,accuracy=GetRequestOrigin.desiredAccuracyBest)
-            response = urllib2.urlopen("http://mobileproxy.truvo.net/BE/white/search.ds?platform=ipad&version=3&locale=fr_BE&what={0}&where=Belgique&distLatitude={1}&distLongitude={2}&activeSort=geo_spec_sortable".format(urllib.quote_plus(search.encode("utf-8")), location.latitude, location.longitude), timeout=5).read()
+            url = "http://mobileproxy.truvo.net/BE/white/search.ds?platform=ipad&version=3&locale=fr_BE&what={0}&where={1}&distLatitude={2}&distLongitude={3}&activeSort=geo_spec_sortable".format(urllib.quote_plus(search.encode("utf-8")), urllib.quote_plus(city.encode("utf-8")), location.latitude, location.longitude)
+            print url
+            response = urllib2.urlopen(url, timeout=5).read()
             xml = ET.fromstring(response)
         except:
-            self.say("Il m'est impossible d'accéder à l'annuaire pour le moment !")
+            self.say(u"Il m'est impossible d'accéder à l'annuaire pour le moment !")
             self.complete_request()
             return
             
@@ -34,10 +45,10 @@ class Annuaire(Plugin):
                 fiche += listing.find("zipCode").text + " " + listing.find("city").text + "\n"
                 if listing.find("phoneNumbers").find("number") != None:
                     fiche += listing.find("phoneNumbers").find("number").text.replace(' ','/')
-                self.say(fiche, fiche.replace("\n",",\n"))
+                self.say(fiche, fiche.replace("\n",",\n").replace(".-","-"))
 
         if empty:
-            self.say("Aucun résultat pour {0}.".format(search))
+            self.say(u"Aucun résultat pour {0}.".format(search))
 
         
         self.complete_request()     
