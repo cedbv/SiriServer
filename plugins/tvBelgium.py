@@ -62,10 +62,15 @@ class tvBelgium(Plugin):
                 starttime_timestamp = time.mktime(starttime_time)
                 endtime_timestamp = time.mktime(endtime_time)
                 
+                afficher = False
+                
                 if soiree == True and starttime_timestamp > soiree_debut_timestamp and starttime_timestamp < soiree_fin_timestamp:
-                    self.say(u"{0} sur {1} de {2} à {3}.".format(title,nom_chaine, time.strftime(u"%H:%M", starttime_time), time.strftime(u"%H:%M", endtime_time)))
+                    afficher = True
                 # Programmes en cours ou qui commence dans moins de 30 minutes, et non-terminés
                 elif soiree == False and starttime_timestamp < currenttime+1800 and endtime_timestamp > currenttime:
+                    afficher = True
+                
+                if afficher == True:
                     self.say(u"{0} sur {1} de {2} à {3}.".format(title,nom_chaine, time.strftime(u"%H:%M", starttime_time), time.strftime(u"%H:%M", endtime_time)))
 
         self.complete_request()     
