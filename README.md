@@ -4,45 +4,48 @@ Siri Server
 IMPORTANT
 ---------
 
-If you have problems with the server in setup or something else, first read this file to the end and if you have still problems visit: [SiriServer Board](http://hack.silentspark.net/phpbb/index.php)
-Please do NOT post installation problems or other non-code related stuff in the github issues section
+Si vous avez des problèmes pour installer ce serveur ou quelque chose d'autre, lisez d'abord ce document jusqu'au bout et si vous avez encore des problèmes, visitez [le forum de SiriServer](http://hack.silentspark.net/phpbb/index.php) (en).
+Merci de NE PAS utiliser la section Issues de GitHub pour rapporter des problèmes concernant l'installation du serveur.
 
-There are currently only 8 plugins here, you can chat a little bit with siri.
-You can ask it for the current time and the current time at a certain point in the world.
-And you can ask it for the meaning of life.
-Also you can ask it for the weather. Create timers, ask for definitions of words, control your XBMC, work with notes and ask several question to wolfram alpha
+Il y a actuellement quelques plugins installés ici. La plupart sont traduits en français et pour certains, c'est même la seule langue disponible.
+Vous pouvez parler un peu à Siri, lui demander la météo, l'heure, régler l'alarme et le minuteur, prendre des notes, définir des mots, indiquer l'emplacement actuelle et des commerces à proximité, d'afficher des images, de rechercher sur le Web et sur Wikipedia, de traduire en près de 50 langues, d'obtenir des renseignements sur vos films préférés, et plus encore...
+Spécifiquement pour la Belgique, Siri est capable de vous dire le programme TV, les horaires de train, de rechercher dans l'annuaire, et les résultats du lotto et de l'EuroMillions.
+Dans une moindre mesure, Siri peut également répondre à des questions diverses grâce à Wolfram Alpha (personnalités, calculs, etc.).
+Vous pouvez trouver [le détail de mes plugins sur le wiki](https://github.com/cedbv/SiriServer/wiki/French-Plugins).
 
-You can contribute by making more plugins!
+Vous pouvez contribuer en créant vous même vos propres plugins !
 
-What is this?
--------------
-This is a very early version of a Siri Server (not a proxy).
+Qu'est ce que c'est ?
+----------------------
 
-Apple's Siri is an voice controlled assistant on iPhone 4S.
+C'est une version très précoce d'un serveur pour Siri (à ne pas confondre avec un proxy).
 
-With jailbreaking you can install it on other iDevices.
-However, Siri needs a server to communicate to do the speech processing.
-Apple only allows 4S devices on their servers.
+Siri d'Apple est un assistant contrôlé par la voix disponible uniquement sur l'iPhone 4S.
 
-This project tries to recreate the Apple Siri Server to use it with other iDevices.
+Grâce au jailbreak, vous pouvez l'installer sur d'autres appareils iOS.
+Cependant, Siri nécessite un serveur avec lequel communiquer pour le traitement de la voix.
+Apple autorise uniquement les iPhone 4S sur leurs serveurs.
 
-You don't need any 4S keys to make it work, as it is independent from Apple.
+Ce projet tente de recréer le serveur Siri d'Apple pour pouvoir l'utiliser sur d'autres appareils iOS.
 
-It uses Google Speech-To-Text API. And therefore we are currently limited to 
-commands that are shorter than 10 seconds (maybe we can overcome this).
+Ce serveur utilise l'API Speech-To-Text (transcription de la voix) de Google. 
+De plus, nous sommes actuellement limité à des commandes durant maximum 10 secondes (peut-être que cette limite pourra être supprimée plus tard).
 
-What's new?
------------
-We have a new plugin system:
-Check out the plugins folder and the [example plugin](https://github.com/Eichhoernchen/SiriServer/blob/master/plugins/examplePlugin.py) for more infos.
-It supports multi-language inputs.
+Plus spécifiquement, vous êtes sur la version française la plus aboutie pour le moment de l'excellent [SiriServer de Eichhoernchen](https://github.com/Eichhoernchen/SiriServer).
+C'est à lui que nous devons ce serveur. Je n'ai fais que la traduction française et le développement de plugins (et quelques améliorations légères dans le coeur).
 
-You should also checkout the [plugin.py](https://github.com/Eichhoernchen/SiriServer/blob/master/plugin.py) to see a plugin's predefined methods.
-You can also look at the [time](https://github.com/Eichhoernchen/SiriServer/blob/master/plugins/time.py) plugin, it sends more complexe objects and does meaningful localized output. And does more complex processing of different inputs
+Quoi de neuf ?
+--------------
+Nous avons un nouveau système de plugins :
+Regardez le dossier [plugins](https://github.com/cedbv/SiriServer/tree/master/plugins) et le [plugin d'exemple](https://github.com/cedbv/SiriServer/blob/master/plugins/examplePlugin.py) pour plus d'informations.
+Il permet le support de plusieurs langues.
 
-What else is here?
-------------------
-The file SiriProtocol documents everything I (and others) found out about the protocol by now
+Vous pouvez également regarder le fichier [plugin.py](https://github.com/cedbv/SiriServer/blob/master/plugin.py) pour voir les méthodes prédéfinies pour les plugins.
+Vous pouvez également regarder le plugin horloge ([time.py](https://github.com/cedbv/SiriServer/blob/master/plugins/time.py)). Il utilise des objets plus complexes et est localisé en plusieurs langues. Et il parse de façon plus complexe, les commandes données par l'utilisateur.
+
+Qu'est ce qu'il y a d'autre ici ?
+----------------------------------
+Le document [SiriProtocol](https://github.com/cedbv/SiriServer/blob/master/SiriProtocol) qui inclus tout ce que Eichhoernchen (et d'autres) ont trouvé à propos du protocole de Siri.
 
 
 Setup, Notes and Instructions
@@ -258,20 +261,20 @@ It should output something like this, note the Ace http request near the end:
 	 User-Agent: Assistant(iPhone/iPhone3,1; iPhone OS/5.0.1/9A405) Ace/1.0
 	 Content-Length: 2000000000
 
-HELP
-------
-If you followed every step of the installation and you still need help to get SiriServer up and running, join #SiriServer channel on Freenode (IRC).
+AIDE
+-----
+Si vous avez suivi toutes les étapes de l'installation et que vous avez encore besoin d'aide pour faire fonctionner SiriServer, rejoignez #SiriServer sur Freenode (IRC).
 
-Thanks
-------
-A big thanks to [Applidium](http://applidium.com/en/news/cracking_siri/) and also [plamoni](https://github.com/plamoni/SiriProxy/) for his SiriProxy which inspired me
-Thanks to everyone that contributed code or ideas.
+Remerciements
+--------------
+Un grand merci à [Applidium](http://applidium.com/en/news/cracking_siri/) et aussi à [plamoni](https://github.com/plamoni/SiriProxy/) pour SiriProxy, ainsi qu'à [Eichhoernchen](https://github.com/Eichhoernchen/SiriServer) qui a créé SiriServer.
+Merci également à tous ceux qui ont contribué au code ou apportés des idées.
 
-Licensing
+Licence
 ---------
-This is free software. You can reuse it under the terms of the [Creative Commons Attribution-NonCommercial-ShareAlike 3.0](http://creativecommons.org/licenses/by-nc-sa/3.0/) license. So you can do what ever you want with it. But you are not allowed to sell it.
-If you like to do more than the license allows, please contact me and ask for a special commercial license.
+C'est un logiciel libre. SiriServer a été créé par [Eichhoernchen](https://github.com/Eichhoernchen/SiriServer), qui a distribué son travail sous licence [Creative Commons Attribution-NonCommercial-ShareAlike 3.0](http://creativecommons.org/licenses/by-nc-sa/3.0/deed.fr) et par conséquent, cette adaptation en français vous est livrée sous la même licence.
+Vous pouvez faire ce que vous voulez de ce logiciel, mais vous n'êtes pas autorisé à le vendre, à vous l'attribuer ou à le partager sous une licence non identique ou similaire à celle-ci.
 
 Disclaimer
 ----------
-Apple owns all the rights on Siri. I do not give any warranties or guaranteed support for this software. Use it as it is.
+Apple détient tous les droits sur Siri. Personne ne fournit de garantie de fonctionnement ou de support pour ce logiciel. Utilisez le comme il est.
