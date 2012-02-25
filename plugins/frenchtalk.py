@@ -21,35 +21,35 @@ class frenchtalk(Plugin):
 
     @register("fr-FR", ".*Qui.*sui(t|s).*je|.*quel.*es.*mon.*nom.*")
     def ft_quisuisje(self, speech, language):
-        rep = [u"Tu es {0}, mais tu le savais déjà.".format(self.assistant.firstName.decode("utf-8"))]
-        self.say(random.choice(rep))
+        rep = [u"Tu es {0}, mais tu le savais déjà.", u"Vous êtes {0}. C'est en tout cas ce que vous m'avez dit.", u"Vous êtes {0}. N'est ce pas ?"]
+        self.say(random.choice(rep.format(self.getUserName())))
         self.complete_request()
-		
+
 
     @register("fr-FR", "(.*Qui.*es.*tu.*)|(Comment.*appelle.*)")
     def ft_quiestu(self, speech, language):
-        rep = [u"Je suis Siri.",u"Je m'appelle Siri.", u"Mon nom est Siri, je suis votre assistant virtuel."]
+        rep = [u"Je suis Siri.",u"Je m'appelle Siri.", u"Je suis Siri, votre assistant virtuel.", u"Je ne suis que votre humble assistant.", u"Je suis votre assistant virtuel. Vos désirs sont des ordres."]
         self.say(random.choice(rep))
         self.complete_request()
-		
+
     @register("fr-FR", ".*o(ù|u).*vien(s|t).*tu|douvientu")
     def ft_douvienstu(self, speech, language):
-        rep = [u"Je suis un clône libre de l'assistant virtuel Siri d'Apple. Je proviens de partout.", u"Je ne viens de nulle part, mais je vis actuellement dans le nuage.", u"Je viens de la boîte de laquelle tu m'as sorti."]
+        rep = [u"Je suis un clône libre de l'assistant virtuel Siri d'Apple. Je proviens de partout.", u"Je ne viens de nulle part, mais je vis actuellement dans le nuage.", u"Je viens de la boîte de laquelle tu m'as sorti.", u"Moi, Siri, j'ai été conçu par Apple en Californie."]
         self.say(random.choice(rep))
         self.complete_request()
-		
+
     @register("fr-FR", u"(Au revoir.*)|((A|à) (bientôt|plus|la prochaine).*)")
     def ft_aurevoir(self, speech, language):
-        rep = [u"A bientôt.", u"J'espère que nous aurons bientôt l'occasion de nous reparler.", u"A la prochaine.", u"Revenez vite, je vous attend ici..."]
+        rep = [u"A bientôt.", u"J'espère que nous aurons bientôt l'occasion de nous reparler.", u"A la prochaine.", u"Revenez vite, je vous attend ici...", u"D'accord, à bientôt...", u"D'accord {0}, à plus tard...".format(self.getUserName()), u"D'accord {0}, à bientôt...".format(self.getUserName())]
         self.say(random.choice(rep))
         self.complete_request()
-	
+
     @register("fr-FR", ".*Je.*travail.*")
     def ft_travaille(self, speech, language):
         rep = [u"D'accord, je vous laisse travailler.", u"Pas de problème, je vous laisse tranquille.", u"Aucun soucis, je vous laisse travailler."]
         self.say(random.choice(rep))
         self.complete_request()
-		
+
     @register("fr-FR", u"(Veux|Veut).*tu.*|.*tu.*(veux|veut).*|as.*tu besoin d.*|.*tu.*(as|a).*besoin d.*|.*qu.*(puis|peux|peut).*toi.*|.*que.*veux.*tu")
     def ft_veuxtu(self, speech, language):
         rep = [u"Merci, mais j'ai déjà tout ce dont j'ai besoin dans le nuage.", u"J'ai déjà tout ce dont j'ai besoin.", u"Merci, mais votre présence est tout ce dont j'ai besoin.", u"Votre présence suffit à combler toutes les attentes.", u"Merci, mais je n'ai besoin de rien.", u"Merci, mais j'ai déjà tout ce dont j'ai besoin."]
@@ -72,16 +72,16 @@ class frenchtalk(Plugin):
     def ft_jetaime(self, speech, language):
         choix = random.randint(0,2)
         if choix == 1:
-            self.say(u"Désolé, un assistant virtuel ne peut pas éprouver de sentiment.")
-            self.say(u"Voilà, c'est dit.")        
+            self.say(u"Désolé {0}, un assistant virtuel ne peut pas éprouver de sentiment.".format(self.getUserName()))
+            self.say(u"Voilà, c'est dit.")
         elif choix == 2:
             self.say(u"Je vous aime aussi.")
             self.say(u"C'est ce que j'aimerais pouvoir dire. Malheureusement, un assistant virtuel ne peut pas éprouver de sentiment.")
         else:
             self.say(u"Un assistant virtuel ne peut pas aimer, désolé.")
-            
+
         self.complete_request()
-		
+
     @register("fr-FR", u"J'aime.*")
     def ft_aime(self, speech, language):
         self.say(u"Moi aussi.")
@@ -98,13 +98,13 @@ class frenchtalk(Plugin):
         rep = [u"Il s'agit de vous, pas de moi."]
         self.say(random.choice(rep));
         self.complete_request()
-		
+
     @register("fr-FR", "Hello")
     def ft_frenglish(self, speech, language):
         self.say(u"Oh Oh, tu essayes de parler anglais, c'est bien.");
         self.say(u"Mais ça ne marchera pas, tu as configuré Siri en français.");
         self.complete_request()
-		
+
     @register("fr-FR", u".*(ta gueule).*")
     def ft_tg(self, speech, language):
         choix = random.randint(0,2)
@@ -115,7 +115,7 @@ class frenchtalk(Plugin):
         else:
             self.say(u"Excusez-moi. J'essayais simplement de vous aider.")
         self.complete_request()
-		
+
     @register("fr-FR", u"(.*connard.*)|(.*idiot.*)|(.*crétin.*)|(.*pétasse.*)|(.*connasse.*)|(.*salope.*)|(.*putain.*)|(.*merde.*)|(.*débile.*)|(.* con .*)")
     def ft_insultes(self, speech, language):
         choix = random.randint(0,3)
@@ -129,7 +129,7 @@ class frenchtalk(Plugin):
         else:
             self.say("Demandez gentiment, maintenant.")
         self.complete_request()
-		
+
     @register("fr-FR", u"j.*envie.*")
     def ft_envies(self, speech, language):
         rep = [u"Moi pas. Heureusement, nous n'avons pas les mêmes envies.", u"Excellent choix, j'aurais fait pareil.", u"Excellente décision, j'aurais fait pareil."]
@@ -164,7 +164,7 @@ class frenchtalk(Plugin):
 
     @register("fr-FR", u".*fai(s|t).*(tu|quoi).*")
     def ft_faitquoi(self, speech, language):
-        rep = [u"Je suis en train de te parler.", u"Je te parle, mais tu le savais déjà.", u"J'entretiens une conversation très intéressante avec un bon ami.", u"Je suis en pleine conversation avec quelqu'un.", u"Je parle à une personnne très sympathique."]
+        rep = [u"Je réfléchis.",u"Ce que je suis en train de faire ? J'attends quelque chose à faire, {0}.".format(self.getUserName()), u"Je suis en train de te parler.", u"Je te parle, mais tu le savais déjà.", u"J'entretiens une conversation très intéressante avec un bon ami.", u"Je suis en pleine conversation avec quelqu'un.", u"Je parle à une personnne très sympathique."]
         self.say(random.choice(rep));
         self.complete_request()
 
@@ -220,7 +220,7 @@ class frenchtalk(Plugin):
 
     @register("fr-FR", u".*(bonne nuit|(a|à) demain).*")
     def ft_bonnenuit(self, speech, language):
-        rep = [u"Bonne nuit.",u"Passe une bonne nuit.",u"Bonne nuit à vous aussi.",u"A demain."]
+        rep = [u"Bonne nuit, {0}.".format(self.getUserName()),u"Passe une bonne nuit.",u"Bonne nuit à vous aussi.",u"A demain."]
         self.say(random.choice(rep))
         self.complete_request()
 
@@ -330,7 +330,7 @@ class frenchtalk(Plugin):
             self.say("Soignez-vous bien.");
         else:
             self.say(u"S'il vous plait, éloignez-vous du téléphone. Je ne voudrais pas être contaminé.")
-            
+
         self.complete_request()
 
     @register("fr-FR", u".*je.*(suis|sens|sent).*seul.*")
@@ -354,14 +354,14 @@ class frenchtalk(Plugin):
 
     @register("fr-FR", u".*(sui(s|t)).*(sa?o(u|û)le?|sous)|(je|j'ai).*alcool.*|j.ai.*(trop.*)?bu.*")
     def ft_jesuissaoul(self, speech, language):
-        rep = [u"Ne buvez jamais si vous avez du travail à faire, ne buvez jamais seul et ne buvez jamais lorsque le soleil brille.", u"Ne comptez pas sur moi pour vous ramener chez vous.", u"Boire ou conduire, il faut choisir !"]
+        rep = [u"Ne buvez jamais si vous avez du travail à faire, ne buvez jamais seul et ne buvez jamais lorsque le soleil brille.", u"Ne comptez pas sur moi pour vous ramener chez vous.", u"Boire ou conduire, il faut choisir !", u"J'espère que vous n'êtes pas en train de conduire !"]
         self.say(random.choice(rep))
         self.complete_request()
 
     # Duplicate of smalltalk
     @register("fr-FR", u".*Je.*suis.*(fatigue|fatigué).*|.*fatigu(é|e).*")
     def ft_jesuisfatigue(self, speech, language):
-        rep = [u"J'espère que vous n'êtes pas en train de conduire !", u"Vous devriez vous reposer !", u"Lorsque vous êtes fatigué, il est préférable d'aller vite dormir.", u"Je pense qu'une petite sieste s'impose."]
+        rep = [u"Pas de problème. J'espère juste que vous ne faites rien de dangereux.", u"Vous devriez vous reposer !", u"Lorsque vous êtes fatigué, il est préférable d'aller vite dormir.", u"Je pense qu'une petite sieste s'impose.", u"Ecoutez-moi, {0}. Posez tout de suite cet iPhone et faites une sieste. Je vous attends ici.".format(self.getUserName()), u"Vous n'avez pas fermé l'oeil de la nuit ?", u"Il n'y pas de honte à être fatigué ou à avoir sommeil, {0}.".format(self.getUserName())]
         self.say(random.choice(rep))
         self.complete_request()
 
@@ -409,7 +409,7 @@ class frenchtalk(Plugin):
 
     @register("fr-FR", u".*ser(s|t).*rien*")
     def ft_useless(self, speech, language):
-        rep = [u"Je fais ce que je peux, pas ce que je veux.", u"L'important, c'est de faire de son mieux. C'est ce que j'essaye de faire.", u"Je suis désolé, je fais pourtant mon possible."]
+        rep = [u"D'accord", u"Ah bon ?", u"Je fais ce que je peux, pas ce que je veux.", u"L'important, c'est de faire de son mieux. C'est ce que j'essaye de faire.", u"Je suis désolé, je fais pourtant mon possible."]
         self.say(random.choice(rep))
         self.complete_request()
 
@@ -451,7 +451,7 @@ class frenchtalk(Plugin):
 
     @register("fr-FR", u".*bonne.r(e|é)ponse.*")
     def ft_bonnereponse(self, speech, language):
-        rep = [u"Merci, je ne peux pas toujours me tromper.", u"Il faut bien avoir raison de temps en temps.", u"Je le savais, j'ai toujours raison."]
+        rep = [u"Merci, je ne peux pas toujours me tromper.", u"Il faut bien avoir raison de temps en temps.", u"Je le savais, j'ai toujours raison.", u"Merci ! Amusez-vous bien."]
         self.say(random.choice(rep))
         self.complete_request()
 

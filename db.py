@@ -24,7 +24,7 @@ if db_type == "mysql":
     except:
         print "You must install MySQLdb to use MySQL with SiriServer."
         exit()
-        
+
 def setup():
     conn = getConnection()
     c = conn.cursor()
@@ -55,6 +55,7 @@ class Assistant(object):
         self.language = None
         self.region = None
         self.firstName = u""
+        self.nickName = u""
 
 def adaptAssistant(assistant):
     return cPickle.dumps(assistant)

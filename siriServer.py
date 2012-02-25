@@ -44,9 +44,9 @@ class HandleConnection(ssl_dispatcher):
     __websearch = {"de-DE": u"Websuche", "en-US": u"Websearch", "fr-FR": "Rechercher sur le web"}
     def __init__(self, conn):
         asyncore.dispatcher_with_send.__init__(self, conn)
-        
+
         self.ssled = False
-        self.secure_connection(certfile="server.passless.crt", keyfile="server.passless.key", server_side=True)               
+        self.secure_connection(certfile="server.passless.crt", keyfile="server.passless.key", server_side=True)
 
         self.consumed_ace = False
         self.data = ""
@@ -71,13 +71,13 @@ class HandleConnection(ssl_dispatcher):
         self.current_location = None
         self.plugin_lastAceId = None
         self.logger = logging.getLogger("logger")
-    
-    def handle_ssl_established(self):                
+
+    def handle_ssl_established(self):
         self.ssled = True
 
     def handle_ssl_shutdown(self):
         self.ssled = False
-            
+
     def readable(self):
         if self.ssled:
             while self.socket.pending() > 0:
@@ -103,7 +103,7 @@ class HandleConnection(ssl_dispatcher):
                 self.consumed_ace = True
                 self.output_buffer = "HTTP/1.1 200 OK\r\nServer: Apache-Coyote/1.1\r\nDate: " +  formatdate(timeval=None, localtime=False, usegmt=True) + "\r\nConnection: close\r\n\r\n\xaa\xcc\xee\x02"
                 #self.flush_output_buffer()
-            
+
             # first process outstanding google answers THIS happens at least on each PING
             if self.gotGoogleAnswer:
                 self.process_recognized_speech(self.googleData, self.lastRequestId, self.dictation)
@@ -111,7 +111,7 @@ class HandleConnection(ssl_dispatcher):
                 self.dictation = None
                 self.googleData = None
                 self.gotGoogleAnswer = False
-            
+
             self.process_compressed_data()
 
     def handle_google_data(self, body, requestId, dictation):
@@ -135,13 +135,13 @@ class HandleConnection(ssl_dispatcher):
         bplist = biplist.writePlistToString(plist);
         #
         self.unzipped_output_buffer = struct.pack('>BI', 2,len(bplist)) + bplist
-        self.flush_unzipped_output() 
+        self.flush_unzipped_output()
         self.sendLock.release()
-    
+
     def send_pong(self, id):
         self.sendLock.acquire()
         self.unzipped_output_buffer = struct.pack('>BI', 4, id)
-        self.flush_unzipped_output() 
+        self.flush_unzipped_output()
         self.sendLock.release()
 
     def process_recognized_speech(self, googleJson, requestId, dictation):
@@ -163,7 +163,7 @@ class HandleConnection(ssl_dispatcher):
                 phrase = speechObjects.Phrase(lowConfidence=False, interpretations=[interpretation])
                 recognition = speechObjects.Recognition([phrase])
                 recognized = speechObjects.SpeechRecognized(requestId, recognition)
-                
+
                 if not dictation:
                     if self.current_running_plugin == None:
                         plugin = PluginManager.getPluginForImmediateExecution(self.assistant.assistantId, best_match, self.assistant.language, (self.send_object, self.send_plist, self.assistant, self.current_location))
@@ -206,21 +206,21 @@ class HandleConnection(ssl_dispatcher):
             if reqObject != None:
                 self.logger.debug("Packet with class: {0}".format(reqObject['class']))
                 self.logger.debug("packet with content:\n{0}".format(pprint.pformat(reqObject, width=40)))
-                
+
                 # first handle speech stuff
-                
+
                 if 'refId' in reqObject:
                     # if the following holds, this packet is an answer to a request by a plugin
                     if reqObject['refId'] == self.plugin_lastAceId and self.current_running_plugin != None:
                         if self.current_running_plugin.waitForResponse != None:
-                            # just forward the object to the 
+                            # just forward the object to the
                             # don't change it's refId, further requests must reference last FinishSpeech
                             self.logger.info("Forwarding object to plugin")
                             self.plugin_lastAceId = None
                             self.current_running_plugin.response = reqObject if reqObject['class'] != "StartRequest" else reqObject['properties']['utterance']
                             self.current_running_plugin.waitForResponse.set()
                             continue
-                
+
                 if ObjectIsCommand(reqObject, StartSpeechRequest) or ObjectIsCommand(reqObject, StartSpeechDictation):
                     self.logger.info("New start of speech received")
                     startSpeech = None
@@ -230,7 +230,7 @@ class HandleConnection(ssl_dispatcher):
                     else:
                         dictation = False
                         startSpeech = StartSpeechRequest(reqObject)
-            
+
                     decoder = speex.Decoder()
                     encoder = flac.Encoder()
                     speexUsed = False
@@ -253,9 +253,9 @@ class HandleConnection(ssl_dispatcher):
                     elif startSpeech.coded == StartSpeech.CodecPCM_Mono_16Bit_32000HzValue:
                         encoder.initialize(32000, 1, 16)
                     # we probably need resampling for sample rates other than 16kHz...
-                    
+
                     self.speech[startSpeech.aceId] = (decoder if speexUsed else None, encoder, dictation)
-                
+
                 elif ObjectIsCommand(reqObject, SpeechPacket):
                     self.logger.info("Decoding speech packet")
                     speechPacket = SpeechPacket(reqObject)
@@ -265,11 +265,11 @@ class HandleConnection(ssl_dispatcher):
                     else:
                         pcm = SpeechPacket.data # <- probably data... if pcm
                     encoder.encode(pcm)
-                        
+
                 elif reqObject['class'] == 'StartCorrectedSpeechRequest':
-                    
+
                     self.process_recognized_speech({u'hypotheses': [{'confidence': 1.0, 'utterance': str.lower(reqObject['properties']['utterance'])}]}, reqObject['aceId'], False)
-            
+
                 elif ObjectIsCommand(reqObject, FinishSpeech):
                     self.logger.info("End of speech received")
                     finishSpeech = FinishSpeech(reqObject)
@@ -280,20 +280,20 @@ class HandleConnection(ssl_dispatcher):
                     flacBin = encoder.getBinary()
                     encoder.destroy()
                     del self.speech[finishSpeech.refId]
-                    
+
                     self.logger.info("Sending flac to google for recognition")
                     try:
                         self.httpClient.make_google_request(flacBin, finishSpeech.refId, dictation, language=self.assistant.language, allowCurses=True)
                     except AttributeError, TypeError:
                         self.logger.info("Unable to find language record for this assistant. Try turning Siri off and then back on.")
-                        
+
                 elif ObjectIsCommand(reqObject, CancelRequest):
                         # this is probably called when we need to kill a plugin
                         # wait for thread to finish a send
                         cancelRequest = CancelRequest(reqObject)
                         if cancelRequest.refId in self.speech:
                             del self.speech[cancelRequest.refId]
-                        
+
                         self.send_object(CancelSucceeded(cancelRequest.aceId))
 
                 elif ObjectIsCommand(reqObject, GetSessionCertificate):
@@ -310,7 +310,7 @@ class HandleConnection(ssl_dispatcher):
                     self.send_object(fail)
 
                     #self.send_plist({"class":"SessionValidationFailed", "properties":{"errorCode":"UnsupportedHardwareVersion"}, "aceId": str(uuid.uuid4()), "refId":reqObject['aceId'], "group":"com.apple.ace.system"})
-                    
+
                 elif reqObject['class'] == 'CreateAssistant':
                     #create a new assistant
                     helper = Assistant()
@@ -323,7 +323,7 @@ class HandleConnection(ssl_dispatcher):
                         else:
                             c.execute("insert into assistants(assistantId, assistant) values (?,?)", (helper.assistantId, helper))
                         self.dbConnection.commit()
-                    except: 
+                    except:
                         noError = False
                     c.close()
                     if noError:
@@ -331,9 +331,9 @@ class HandleConnection(ssl_dispatcher):
                         self.send_plist({"class": "AssistantCreated", "properties": {"speechId": str(uuid.uuid4()), "assistantId": helper.assistantId}, "group":"com.apple.ace.system", "callbacks":[], "aceId": str(uuid.uuid4()), "refId": reqObject['aceId']})
                     else:
                         self.send_plist({"class":"CommandFailed", "properties": {"reason":"Database error", "errorCode":2, "callbacks":[]}, "aceId": str(uuid.uuid4()), "refId": reqObject['aceId'], "group":"com.apple.ace.system"})
-            
+
                 elif reqObject['class'] == 'SetAssistantData':
-                    # fill assistant 
+                    # fill assistant
                     if self.assistant != None:
                         c = self.dbConnection.cursor()
                         objProperties = reqObject['properties']
@@ -341,17 +341,27 @@ class HandleConnection(ssl_dispatcher):
                         self.assistant.timeZoneId = objProperties['timeZoneId']
                         self.assistant.language = objProperties['language']
                         self.assistant.region = objProperties['region']
-                        self.assistant.firstName = objProperties['meCards'][0]['properties']['firstName'].encode("utf-8")
+
+                        try:
+                            self.assistant.firstName = objProperties['meCards'][0]['properties']['firstName'].encode("utf-8")
+                        except:
+                            self.assistant.firstName = ""
+
+                        try:
+                            self.assistant.nickName = objProperties['meCards'][0]['properties']['nickName'].encode("utf-8")
+                        except:
+                            self.assistant.nickName = ""
+
                         if db.db_type == "mysql":
                             assistant_str = db.adaptAssistant(self.assistant)
                             c.execute("update assistants set assistant = %s where assistantId = %s", (assistant_str, self.assistant.assistantId))
                         else:
                             c.execute("update assistants set assistant = ? where assistantId = ?", (self.assistant, self.assistant.assistantId))
-            
+
                         self.dbConnection.commit()
                         c.close()
 
-            
+
                 elif reqObject['class'] == 'LoadAssistant':
                     c = self.dbConnection.cursor()
                     if db.db_type == "mysql":
@@ -382,8 +392,8 @@ class HandleConnection(ssl_dispatcher):
                 elif reqObject['class'] == 'StartRequest':
                     #this should also be handeled by special plugins, so lets call the plugin handling stuff
                     self.process_recognized_speech({'hypotheses': [{'utterance': reqObject['properties']['utterance'], 'confidence': 1.0}]}, reqObject['aceId'], False)
-                
-                    
+
+
     def hasNextObj(self):
         if len(self.unzipped_input) == 0:
             return False
@@ -393,10 +403,10 @@ class HandleConnection(ssl_dispatcher):
         if cmd == 2:
             #print "expect: ", data+5,  " received: ", len(self.unzipped_input)
             return ((data + 5) < len(self.unzipped_input))
-    
+
     def read_next_object_from_unzipped(self):
         cmd, data = struct.unpack('>BI', self.unzipped_input[:5])
-        
+
         if cmd == 3: #ping
             self.ping = data
             self.logger.info("Received a Ping ({0})".format(data))
@@ -411,14 +421,14 @@ class HandleConnection(ssl_dispatcher):
         object_data = self.unzipped_input[5:object_size+5]
         self.unzipped_input = self.unzipped_input[object_size+5:]
         return self.parse_object(object_data)
-    
+
     def parse_object(self, object_data):
         #this is a binary plist file
         plist = biplist.readPlistFromString(object_data)
         return plist
 
     def flush_unzipped_output(self):
-            
+
         self.output_buffer += self.compressor.compress(self.unzipped_output_buffer)
         #make sure everything is compressed
         self.output_buffer += self.compressor.flush(zlib.Z_SYNC_FLUSH)
@@ -446,12 +456,12 @@ class SiriServer(asyncore.dispatcher):
         self.listen(5)
         logging.getLogger("logger").info("Listening on port {0}".format(port))
         signal.signal(signal.SIGTERM, self.handler)
-   
+
     def handler(self, signum, frame):
         if signum == signal.SIGTERM:
             x.info("Got SIGTERM, closing server")
             self.close()
-    
+
 
     def handle_accept(self):
         pair = self.accept()
