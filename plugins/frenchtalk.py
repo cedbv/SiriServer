@@ -22,7 +22,7 @@ class frenchtalk(Plugin):
     @register("fr-FR", ".*Qui.*sui(t|s).*je|.*quel.*es.*mon.*nom.*")
     def ft_quisuisje(self, speech, language):
         rep = [u"Tu es {0}, mais tu le savais déjà.", u"Vous êtes {0}. C'est en tout cas ce que vous m'avez dit.", u"Vous êtes {0}. N'est ce pas ?"]
-        self.say(random.choice(rep.format(self.getUserName())))
+        self.say(random.choice(rep).format(self.getUserName()))
         self.complete_request()
 
 
