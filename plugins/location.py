@@ -16,26 +16,71 @@ from siriObjects.systemObjects import GetRequestOrigin,Location
 APIKEY = APIKeyForAPI("googleplaces")
 
 class location(Plugin):
-    
-    # temp regex, need to use group name...
-    #@register("fr-FR", u".*(o(u|ù) (puis.je trouv(e|é)r?)) (.*)|.*(o(ù|u) est|recherche|cherche|trouve) (.*) près de moi.*|.*(o(ù|u) est|recherche|cherche|trouve) (.*) près d'ici.*|.*(o(ù|u) est|recherche|cherche|trouve) (.*) (les?|la) plus proche.*")
-    @register("fr-FR", u".*o(ù|u) puis.je trouv(é|e)r? (?P<keyword>.*)( par ici| paris 6| près (d'ici|de moi)| (la|les?) plus proche| dans les environs?| (a|à) proximit(é|e)| dans le coin)?.*|.*(trouv(e|ait|ais)|cherch(e|é)r?|est|sont) (?P<keyword2>.*) (par ici|paris 6|près d'ici|près de moi|(la|les?) plus proche|dans les environs?|(a|à) proximit(é|e)|dans le coin).*")
+
+    res = {
+        'results_found': {
+            'fr-FR': u"J'ai trouvé {0} résultats : ",
+            'en-US': u"I found {0} results : ",
+            },
+        'no_result': {
+            'fr-FR': u"Pas de résultat.",
+            'en-US': u"No result.",
+            },
+        'no_location_found': {
+            'fr-FR': u"Désolé, je n'arrive pas à trouver cet endroit !",
+            'en-US': u"No location found!",
+            'de-DE': u"Ich habe keinen Ort gefunden!",
+            },
+        'connection_error': {
+            'fr-FR': u"Il m'est impossible de contacter Google pour le moment ! Veuillez réessayer plus tard.",
+            'en-US': u"Il m'est impossible de contacter Google pour le moment ! Veuillez réessayer plus tard.",
+            'de-DE': u"Ich konnte keine Verbindung zu Googlemaps aufbauen",
+            },
+        'you_are': {
+            'fr-FR': u"Vous êtes {0}.",
+            'en-US': u"You are {0}.",
+            },
+        'google_useless': {
+            'fr-FR': u"Les informations demandées ne sont pas sur Google Maps !",
+            'en-US': u"The Googlemaps response did not hold the information i need!",
+            'de-DE': u"Die Googlemaps informationen waren ungenügend!",
+            },
+        'here_is': {
+            'fr-FR': u"Voici l'emplacement de {0} :\n{1}",
+            'en-US': u"Here is {0}:\n{1}",
+            'de-DE': u"Hier liegt {0}:\n{1}",
+            },
+        }
+
+
+    @register("fr-FR", u".*o(ù|u) puis.je trouv(é|e)r? (?P<keyword>.*)( par ici| paris 6| près (d'ici|de moi)| (la|les?) plus proches?| dans les environs?| (a|à) proximit(é|e)| dans le coin)?.*|.*(trouv(e|ait|ais)|cherch(e|é)r?|est|sont) (?P<keyword2>.*) (par ici|paris 6|près d'ici|près de moi|(la|les?) plus proches?|dans les environs?|(a|à) proximit(é|e)|dans le coin).*")
+    @register("en-US",".*(where|find|show).* (nearest|nearby|closest) (?P<keyword>.*)")
     def whereisPlaces(self, speech, language, regex):
+        res = self.res
         keyword = regex.group('keyword')
         if keyword == None:
             keyword = regex.group('keyword2')
         keyword = keyword.strip();
-        keyword = keyword.replace(u"près ","").replace("par ","").replace('la ','').replace('les ','').replace('le ','').replace('des ','').replace('de ','').replace('du ','').replace('une ','').replace('un ','').replace("dans ","")
-        print "MC : " + keyword
+
+        if language == 'fr-FR':
+            keyword = keyword.replace(u"près ","").replace(u"plus proches","").replace(u"plus proche","").replace(u"à proximité","").replace(u"dans le coin","").replace(u"coin ","").replace("par ","").replace('la ','').replace('les ','').replace('le ','').replace('des ','').replace('de ','').replace('du ','').replace('une ','').replace('un ','').replace("dans ","")
+        elif language == 'en-US':
+            keyword = keyword.replace(u"near by ","").replace(u"nearby ","").replace(u"the ","").replace(u"an ","").replace(u"a ","")
+
         location = self.getCurrentLocation(force_reload=True,accuracy=GetRequestOrigin.desiredAccuracyBest)
         latlong = str(location.latitude)+","+str(location.longitude)
-        
-        if speech.count("pied") > 0:
+
+        if language == "fr-FR" and speech.count("pied") > 0:
             radius = "2500"
             keyword = keyword.replace(u"à pied","").replace(u"a pied","").replace("pied","")
+        elif language == "en-US" and speech.count("walk") > 0:
+            radius = "2500"
+            keyword = keyword.replace(u"in walking distance","").replace(u"walking distance","").replace(u"walking","").replace("walk","")
         else:
             radius = "15000"
-        
+
+        print "Keyword : " + keyword
+
         response = None
         url = "https://maps.googleapis.com/maps/api/place/search/json?location={0}&radius={1}&keyword={2}&sensor=true&key={3}".format(latlong,radius,urllib.quote_plus(keyword.encode("utf-8")),APIKEY)
         print url
@@ -44,9 +89,9 @@ class location(Plugin):
             response = json.load(jsonString);
         except:
             pass
-            
+
         if response["status"] == "OK":
-            self.say(u"J'ai trouvé {0} résultats : ".format(len(response["results"])))
+            self.say(res["results_found"][language].format(len(response["results"])))
             for result in response["results"]:
                 ident = result["id"]
                 name = result["name"]
@@ -57,21 +102,21 @@ class location(Plugin):
                     rating = result["rating"]
                 else:
                     rating = 0.0
-                
+
                 distance = self.haversine_distance(location.latitude, location.longitude, lat, lng)
-                
+
                 view = AddViews(self.refId, dialogPhase="Completion")
                 mapsnippet = SiriMapItemSnippet(items=[SiriMapItem(name, Location(label=vicinity,latitude=lat,longitude=lng, street=vicinity))])
                 view.views = [AssistantUtteranceView(text="Distance : "+str(distance)+" km", dialogIdentifier="Map#test"), mapsnippet]
                 self.sendRequestWithoutAnswer(view)
 
         elif response["status"] == "ZERO_RESULTS":
-            self.say(u"Pas de résultat")
+            self.say(res["no_result"][language])
         else:
-            self.say(u"Il m'est impossible de contacter Google pour le moment ! Veuillez réessayer plus tard.")
+            self.say(res["connection_error"][language])
         self.complete_request()
 
-    @register("de-DE", "(Wo bin ich.*)")     
+    @register("de-DE", "(Wo bin ich.*)")
     @register("en-US", "(Where am I.*)")
     @register("fr-FR", u"((ou|où).*suis.*je.*)")
     def whereAmI(self, speech, language):
@@ -105,15 +150,15 @@ class location(Plugin):
             postal_code = filter(lambda x: True if "postal_code" in x['types'] else False, components)[0]['short_name']
 
         view = AddViews(self.refId, dialogPhase="Completion")
+        text_to_speak = self.res["you_are"][language].format(result)
         mapsnippet = SiriMapItemSnippet(items=[SiriMapItem(result, SiriLocation(result, street, city, state, countryCode, postal_code, location.latitude, location.longitude))])
-        view.views = [AssistantUtteranceView(text="Recherche de votre emplacement...", dialogIdentifier="Map#test"), mapsnippet]
+        view.views = [AssistantUtteranceView(speakableText=text_to_speak, dialogIdentifier="Map#test"), mapsnippet]
         self.sendRequestWithoutAnswer(view)
-        self.say(u"Vous êtes "+result)
         self.complete_request()
 
-    @register("de-DE", "(Wo liegt.*)")    
+    @register("de-DE", "(Wo liegt.*)")
     @register("en-US", "(Where is.*)")
-    @register("fr-FR", u".*o(ù|u) (est |se trouve |ce trouve |se situe |ce situe )(.*)")
+    @register("fr-FR", u"(ouais?|.*o(ù|u)) (est |se trouve |ce trouve |se situe |ce situe )(.*)")
     def whereIs(self, speech, language, regex):
         the_location = None
         if language == "de-DE":
@@ -124,18 +169,13 @@ class location(Plugin):
         else:
             the_location = re.match("(?u).* is ([\w ]+)$", speech, re.IGNORECASE)
             the_location = the_location.group(1).strip()
-        
+
         print the_location
         if the_location != None:
             the_location = the_location[0].upper()+the_location[1:]
         else:
-            if language == "de-DE":
-                self.say('Ich habe keinen Ort gefunden!',None)
-            elif language == 'fr-FR':
-                self.say(u"Désolé, je n'arrive pas à trouver cet endroit !")
-            else:
-                self.say('No location found!',None)
-            self.complete_request() 
+            self.say(self.res["no_location_found"][language])
+            self.complete_request()
             return
         url = u"http://maps.googleapis.com/maps/api/geocode/json?address={0}&sensor=false&language={1}".format(urllib.quote_plus(the_location.encode("utf-8")), language)
         jsonString=None
@@ -149,41 +189,30 @@ class location(Plugin):
                 location = response['results'][0]['geometry']['location']
                 city=response['results'][0]['address_components'][0]['long_name']
                 try:
+                    emplacement = response['results'][0]["formatted_address"]
                     country=response['results'][0]['address_components'][2]['long_name']
                     countryCode=response['results'][0]['address_components'][2]['short_name']
                 except:
+                    emplacement=the_location
                     country=the_location
                     countryCode=the_location
-                if language=="de-DE":
-                    the_header=u"Hier liegt {0}".format(the_location)
-                elif language =="fr-FR":
-                    the_header=u"Voici l'emplacement de {0} :".format(the_location)
-                else:
-                    the_header=u"Here is {0}".format(the_location)
+
+                the_header = self.res["here_is"][language].format(the_location, emplacement)
+
                 view = AddViews(self.refId, dialogPhase="Completion")
                 s_Location=Location(the_header, city, city, "", countryCode, "", str(location['lat']), str(location['lng']))
-                mapsnippet = SiriMapItemSnippet(items=[SiriMapItem(the_header, s_Location, "BUSINESS_ITEM")])
-                view.views = [AssistantUtteranceView(text=the_header, dialogIdentifier="Map"), mapsnippet]
+                mapsnippet = SiriMapItemSnippet(items=[SiriMapItem(emplacement, s_Location, "BUSINESS_ITEM")])
+                view.views = [AssistantUtteranceView(speakableText=the_header, dialogIdentifier="Map"), mapsnippet]
                 self.sendRequestWithoutAnswer(view)
             else:
-                if language=="de-DE":
-                    self.say('Die Googlemaps informationen waren ungenügend!','Fehler')
-                elif language == "fr-FR":
-                    self.say(u"Les informations demandées ne sont pas sur Google Maps !", u'Erreur')
-                else:
-                    self.say('The Googlemaps response did not hold the information i need!','Error')
+                self.say(self.res["google_useless"][language])
         else:
-            if language=="de-DE":
-                self.say('Ich konnte keine Verbindung zu Googlemaps aufbauen','Fehler')
-            elif language == 'fr-FR':
-                self.say(u"Je n'arrive pas à joindre Google Maps.", 'Erreur')
-            else:
-                self.say('Could not establish a conenction to Googlemaps','Error');
-        self.complete_request()        
+            self.say(self.res["connection_error"][language])
+        self.complete_request()
 
     def haversine_distance(self, lat1, lon1, lat2, lon2):
         RAD_PER_DEG = 0.017453293
-        Rkm = 6371        
+        Rkm = 6371
         dlon = lon2-lon1
         dlat = lat2-lat1
         dlon_rad = dlon*RAD_PER_DEG
@@ -192,7 +221,7 @@ class location(Plugin):
         lon1_rad = lon1*RAD_PER_DEG
         lat2_rad = lat2*RAD_PER_DEG
         lon2_rad = lon2*RAD_PER_DEG
-        
+
         a = (math.sin(dlat_rad/2))**2 + math.cos(lat1_rad) * math.cos(lat2_rad) * (math.sin(dlon_rad/2))**2
         c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
         return round(Rkm * c,2)
