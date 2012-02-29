@@ -8,6 +8,7 @@ import threading
 import logging
 import PluginManager
 import inspect
+import random
 
 
 from siriObjects.baseObjects import ClientBoundCommand, RequestCompleted
@@ -51,6 +52,8 @@ def APIKeyForAPI(apiName):
     apiKey = PluginManager.getAPIKeyForAPI(apiName)
     if apiKey == None or apiKey == "":
         raise ApiKeyNotFoundException("Could not find API key for: "+ apiName + ". Please check your " + PluginManager.__apikeys_file__)
+    elif apiKey.count("|"):
+        apiKey = random.choice(apiKey.split("|"))
     return apiKey
 
 class Plugin(threading.Thread):
