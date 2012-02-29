@@ -10,8 +10,8 @@ import math
 from plugin import *
 
 from siriObjects.uiObjects import AddViews, AssistantUtteranceView
-from siriObjects.mapObjects import SiriMapItemSnippet,SiriLocation, SiriMapItem
 from siriObjects.systemObjects import GetRequestOrigin,Location
+from siriObjects.localsearchObjects import Business, MapItem, MapItemSnippet, Rating
 
 APIKEY = APIKeyForAPI("googleplaces")
 
@@ -91,7 +91,8 @@ class location(Plugin):
             pass
 
         if response["status"] == "OK":
-            self.say(res["results_found"][language].format(len(response["results"])))
+
+            results = []
             for result in response["results"]:
                 ident = result["id"]
                 name = result["name"]
@@ -99,16 +100,25 @@ class location(Plugin):
                 lng = result["geometry"]["location"]["lng"]
                 vicinity = result["vicinity"]
                 if "rating" in result:
-                    rating = result["rating"]
+                    rate = result["rating"]
+                    nb_review = 1
                 else:
-                    rating = 0.0
+                    rate = 0.0
+                    nb_review = 0
 
-                distance = self.haversine_distance(location.latitude, location.longitude, lat, lng)
+                #distance = self.haversine_distance(location.latitude, location.longitude, lat, lng)
 
-                view = AddViews(self.refId, dialogPhase="Completion")
-                mapsnippet = SiriMapItemSnippet(items=[SiriMapItem(name, Location(label=vicinity,latitude=lat,longitude=lng, street=vicinity))])
-                view.views = [AssistantUtteranceView(text="Distance : "+str(distance)+" km", dialogIdentifier="Map#test"), mapsnippet]
-                self.sendRequestWithoutAnswer(view)
+                rating = Rating(value=rate, providerId='Google', count=nb_review)
+                details = Business(totalNumberOfReviews=nb_review,name=name,rating=rating)
+
+                mapitem = MapItem(label=name, street="", stateCode="", postalCode="",latitude=lat, longitude=lng)
+                mapitem.detail = details
+                results.append(mapitem)
+
+            mapsnippet = MapItemSnippet(items=results)
+            view = AddViews(self.refId, dialogPhase="Completion")
+            view.views = [AssistantUtteranceView(speakableText=res["results_found"][language].format(len(response["results"])), dialogIdentifier="googlePlacesMap"), mapsnippet]
+            self.sendRequestWithoutAnswer(view)
 
         elif response["status"] == "ZERO_RESULTS":
             self.say(res["no_result"][language])
@@ -151,14 +161,14 @@ class location(Plugin):
 
         view = AddViews(self.refId, dialogPhase="Completion")
         text_to_speak = self.res["you_are"][language].format(result)
-        mapsnippet = SiriMapItemSnippet(items=[SiriMapItem(result, SiriLocation(result, street, city, state, countryCode, postal_code, location.latitude, location.longitude))])
-        view.views = [AssistantUtteranceView(speakableText=text_to_speak, dialogIdentifier="Map#test"), mapsnippet]
+        mapsnippet = MapItemSnippet(items=[MapItem(label=postal_code+" "+city, street=street, city=city, postalCode=postal_code, latitude=location.latitude, longitude=location.longitude, detailType="CURRENT_LOCATION")])
+        view.views = [AssistantUtteranceView(speakableText=text_to_speak, dialogIdentifier="Map#whereAmI"), mapsnippet]
         self.sendRequestWithoutAnswer(view)
         self.complete_request()
 
     @register("de-DE", "(Wo liegt.*)")
     @register("en-US", "(Where is.*)")
-    @register("fr-FR", u"(ouais?|.*o(ù|u)) (est |se trouve |ce trouve |se situe |ce situe )(.*)")
+    @register("fr-FR", u"(ouai|.*o(ù|u)) (est |se trouve |ce trouve |se situe |ce situe )(.*)")
     def whereIs(self, speech, language, regex):
         the_location = None
         if language == "de-DE":
@@ -200,8 +210,7 @@ class location(Plugin):
                 the_header = self.res["here_is"][language].format(the_location, emplacement)
 
                 view = AddViews(self.refId, dialogPhase="Completion")
-                s_Location=Location(the_header, city, city, "", countryCode, "", str(location['lat']), str(location['lng']))
-                mapsnippet = SiriMapItemSnippet(items=[SiriMapItem(emplacement, s_Location, "BUSINESS_ITEM")])
+                mapsnippet = MapItemSnippet(items=[MapItem(label=city, latitude=str(location['lat']),longitude=str(location['lng']), detailType="ADDRESS_ITEM")])
                 view.views = [AssistantUtteranceView(speakableText=the_header, dialogIdentifier="Map"), mapsnippet]
                 self.sendRequestWithoutAnswer(view)
             else:
