@@ -352,6 +352,11 @@ class HandleConnection(ssl_dispatcher):
                         except:
                             self.assistant.nickName = ""
 
+                        try:
+                            self.assistant.accountIdentifier = objProperties["abSources"][0]["properties"]["accountIdentifier"]
+                        except:
+                            self.assistant.accountIdentifier = ""
+
                         if db.db_type == "mysql":
                             assistant_str = db.adaptAssistant(self.assistant)
                             c.execute("update assistants set assistant = %s where assistantId = %s", (assistant_str, self.assistant.assistantId))

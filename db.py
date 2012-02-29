@@ -60,6 +60,7 @@ class Assistant(object):
         self.region = None
         self.firstName = u""
         self.nickName = u""
+        self.accountIdentifier = None
 
 def adaptAssistant(assistant):
     return cPickle.dumps(assistant)
