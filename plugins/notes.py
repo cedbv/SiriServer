@@ -16,7 +16,7 @@ class NoteSnippet(AceObject):
     def __init__(self, notes=None):
         super(NoteSnippet, self).__init__("Snippet", "com.apple.ace.note")
         self.notes = notes if notes != None else []
-    
+
     def to_plist(self):
         self.add_property('notes')
         return super(NoteSnippet, self).to_plist()
@@ -38,7 +38,7 @@ class Create(ClientBoundCommand):
         self.contents = contents
         self.aceId= aceId if aceId != None else str.upper(str(uuid4()))
         self.refId = refId if refId != None else str.upper(str(uuid4()))
-        
+
     def to_plist(self):
     	self.add_item('aceId')
         self.add_item('refId')
@@ -46,19 +46,19 @@ class Create(ClientBoundCommand):
         return super(Create, self).to_plist()
 
 class note(Plugin):
-    localizations = {"noteDefaults": 
-                        {"searching":{"en-US": "Creating your note ...","fr-FR": u"Création de votre note..."}, 
+    localizations = {"noteDefaults":
+                        {"searching":{"en-US": "Creating your note ...","fr-FR": u"Création de votre note..."},
                          "result": {"en-US": "Here is your note:","fr-FR": "Voici votre note :"},
-                         "nothing": {"en-US": "What should I note?","fr-FR": "Que dois-je noter ?"}}, 
+                         "nothing": {"en-US": "What should I note?","fr-FR": "Que dois-je noter ?"}},
                     "failure": {
                                 "en-US": "I cannot type your note right now.",
                                 "fr-FR": "Je ne peux pas écrire votre note maintenant."
                                 }
                     }
     @register("en-US", "(.*note [a-zA-Z0-9]+)|(.*create.*note [a-zA-Z0-9]+)|(.*write.*note [a-zA-Z0-9]+)")
-    @register("fr-FR", u"(.*créer une note [a-zA-Z0-9]+)|(.*note [a-zA-Z0-9]+)")
+    @register("fr-FR", u"(.*créer? une note .*)|(.*note .*)")
     def writeNote(self, speech, language):
-        content_raw = re.match(".*note ([a-zA-Z0-9, ]+)$", speech, re.IGNORECASE)
+        content_raw = re.match(".*note (.*)$", speech, re.IGNORECASE)
         if content_raw == None:
             view_initial = AddViews(self.refId, dialogPhase="Reflection")
             view_initial.views = [AssistantUtteranceView(text=note.localizations['noteDefaults']['nothing'][language], speakableText=note.localizations['noteDefaults']['nothing'][language], dialogIdentifier="Note#failed")]
@@ -67,7 +67,7 @@ class note(Plugin):
             view_initial = AddViews(self.refId, dialogPhase="Reflection")
             view_initial.views = [AssistantUtteranceView(text=note.localizations['noteDefaults']['searching'][language], speakableText=note.localizations['noteDefaults']['searching'][language], dialogIdentifier="Note#creating")]
             self.sendRequestWithoutAnswer(view_initial)
-            
+
             content_raw = content_raw.group(1).strip()
             if "saying" in content_raw:
                 split = content_raw.split(' ')
@@ -89,21 +89,20 @@ class note(Plugin):
                 if split[0] == "for":
                     split.pop(0)
                     content_raw = ' '.join(map(str, split))
-                
+
             note_create = Create()
             note_create.contents = content_raw
             note_return = self.getResponseForRequest(note_create)
-        
+
             view = AddViews(self.refId, dialogPhase="Summary")
             view1 = AssistantUtteranceView(text=note.localizations['noteDefaults']['result'][language], speakableText=note.localizations['noteDefaults']['result'][language], dialogIdentifier="Note#created")
-        
+
             note_ = NoteObject()
             note_.contents = content_raw
             note_.identifier = note_return["properties"]["identifier"]
-        
+
             view2 = NoteSnippet(notes=[note_])
             view.views = [view1, view2]
             self.sendRequestWithoutAnswer(view)
         self.complete_request()
 
-    
