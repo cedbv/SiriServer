@@ -5,8 +5,8 @@
 *.sqlite3
 *.log
 *.cnf
+twitter.conf
 .DS_Store
 plugins.conf
 apiKeys.conf
 nbproject
-SiriServer
