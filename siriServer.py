@@ -460,6 +460,7 @@ class SiriServer(asyncore.dispatcher):
     def handler(self, signum, frame):
         if signum == signal.SIGTERM:
             x.info("Got SIGTERM, closing server")
+            db.closeConnection()
             self.close()
 
 

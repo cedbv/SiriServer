@@ -25,6 +25,11 @@ if db_type == "mysql":
         print "You must install MySQLdb to use MySQL with SiriServer."
         exit()
 
+if db_type == "mysql":
+    __conn__ = MySQLdb.connect(__host__, __username__, __password__, __database__, use_unicode=True)
+else:
+    __conn__ = sqlite3.connect(__database__, detect_types=sqlite3.PARSE_DECLTYPES)
+
 def setup():
     conn = getConnection()
     c = conn.cursor()
@@ -39,13 +44,12 @@ def setup():
         c.execute("create table if not exists assistants(assistantId text primary key, assistant assi)")
     conn.commit()
     c.close()
-    conn.close()
 
 def getConnection():
-    if db_type == "mysql":
-        return MySQLdb.connect(__host__, __username__, __password__, __database__, use_unicode=True)
-    else:
-        return sqlite3.connect(__database__, detect_types=sqlite3.PARSE_DECLTYPES)
+    return __conn__
+
+def closeConnection():
+    return __conn__.close()
 
 class Assistant(object):
     def __init__(self, assistantId=str.upper(str(uuid4()))):
