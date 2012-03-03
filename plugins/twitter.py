@@ -5,7 +5,7 @@
 
 # This plugin requires a web server (like Apache) with SiriServer-WebAddons (a php script) installed.
 # https://github.com/cedbv/SiriServer-WebAddons
-# TODO: Replace twitter.conf by db
+# TODO: Use a db instead of twitter.conf
 # TODO: documentation
 
 import re
