@@ -48,8 +48,8 @@ class Twitter(Plugin):
             'fr-FR': u"Quelque chose s'est mal passé. Veuillez réessayer plus tard.",
         },
         'not_ready': {
-            'en-US': u"You must configure your Twitter account. Here is the identifant needed by the server administrator : {0}",
-            'fr-FR': u"Votre compte n'est pas configuré. Connectez-vous avec le bouton ci-dessous pour que je puisse envoyer des tweets pour vous :",
+            'en-US': u"Your Twitter account is not configured. Connect with the following button :",
+            'fr-FR': u"Votre compte Twitter n'est pas configuré. Vous pouvez vous connecter avec ce bouton :",
         },
     }
 
