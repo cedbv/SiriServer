@@ -38,7 +38,7 @@ class frenchtalk(Plugin):
         self.say(random.choice(rep))
         self.complete_request()
 
-    @register("fr-FR", u"(Au revoir.*)|((A|à) (bientôt|plus|la prochaine).*)")
+    @register("fr-FR", u"(Au revoir|aurevoir).*|((A|à) (bientôt|plus|la prochaine).*)")
     def ft_aurevoir(self, speech, language):
         rep = [u"A bientôt.", u"J'espère que nous aurons bientôt l'occasion de nous reparler.", u"A la prochaine.", u"Revenez vite, je vous attend ici...", u"D'accord, à bientôt...", u"D'accord {0}, à plus tard...".format(self.getUserName()), u"D'accord {0}, à bientôt...".format(self.getUserName())]
         self.say(random.choice(rep))
@@ -116,7 +116,7 @@ class frenchtalk(Plugin):
             self.say(u"Excusez-moi. J'essayais simplement de vous aider.")
         self.complete_request()
 
-    @register("fr-FR", u"(.*connard.*)|(.*idiot.*)|(.*crétin.*)|(.*pétasse.*)|(.*connasse.*)|(.*salope.*)|(.*putain.*)|(.*merde.*)|(.*débile.*)|(.* con .*)")
+    @register("fr-FR", u".*(connard|idiot|crétin|pétasse|connasse|salope|putain|merde|débile|andouille| con|con ).*")
     def ft_insultes(self, speech, language):
         choix = random.randint(0,3)
         if choix == 1:
@@ -272,7 +272,7 @@ class frenchtalk(Plugin):
         self.say(random.choice(rep))
         self.complete_request()
 
-    @register("fr-FR", u".*moi.*aussi.*")
+    @register("fr-FR", u".*(moi.*aussi|on.est?.(deux|2)).*")
     def ft_moiaussi(self, speech, language):
         rep = [u"C'est parfait.", u"Aucun problème.", u"Faites ce que bon vous semble."]
         self.say(random.choice(rep))
@@ -464,6 +464,30 @@ class frenchtalk(Plugin):
     @register("fr-FR", u".*je pense.*")
     def ft_jepense(self, speech, language):
         rep = [u"C'est bien de penser.", u"En parlant de ça, je me demande ce que ça fait de penser. Un assistant virtuel ne pense pas...", u"Penser, vous dites ? J'aimerais bien savoir ce qu'on ressent quand on pense."]
+        self.say(random.choice(rep))
+        self.complete_request()
+
+    @register("fr-FR", u".*moi.non.plus.*")
+    def ft_moinonplus(self, speech, language):
+        rep = [u"Moi non plus.", u"D'accord.", u"Comme vous voulez"]
+        self.say(random.choice(rep))
+        self.complete_request()
+
+    @register("fr-FR", u".*paysan.*")
+    def ft_paysan(self, speech, language):
+        rep = [u"Je ne travaille pas à la campagne. Je ne suis donc pas un paysan."]
+        self.say(random.choice(rep))
+        self.complete_request()
+
+    @register("fr-FR", u".*je.(m.en vais|par(s|t)).*")
+    def ft_jepars(self, speech, language):
+        rep = [u"Ne partez pas trop loin.", u"Pas de problème, je vous attends ici."]
+        self.say(random.choice(rep))
+        self.complete_request()
+
+    @register("fr-FR", u".*1.2.3.*")
+    def ft_123(self, speech, language):
+        rep = [u"Bravo, tu sais compter.", u"Encore un effort, et tu sauras compter jusqu'à 10."]
         self.say(random.choice(rep))
         self.complete_request()
 
