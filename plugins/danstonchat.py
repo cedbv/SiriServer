@@ -21,7 +21,7 @@ class dansTonChat(Plugin):
     @register("fr-FR", ".*dans.*ton.*chat.*")
     def dtc(self, speech, language):
 
-        fortune = random.choice(fortunes).decode("utf-8")
+        fortune = random.choice(self.fortunes).decode("utf-8")
         try:
             url = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', fortune)[0]
             fortune = fortune.replace("\n-- "+url,"").strip()
